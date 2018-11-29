@@ -1,0 +1,16 @@
+syntax = "proto3";
+option java_package = "com.easemob.cassandra.sstable";
+option java_outer_classname = "SSTableModel";
+
+
+
+message Column{
+    bytes name = 1;
+    bytes value = 2;
+    fixed64 writeTime = 3;
+}
+
+message Row{
+    bytes key = 1;
+    repeated Column columns = 2;
+}
