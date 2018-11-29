@@ -8,19 +8,13 @@ import org.apache.cassandra.db.*;
 import org.apache.cassandra.io.sstable.Descriptor;
 import org.apache.cassandra.io.sstable.SSTableIdentityIteratorPatched;
 import org.apache.cassandra.io.sstable.SSTableReaderPatched;
-import org.apache.cassandra.io.sstable.SSTableScannerPatched;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
-import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -85,54 +79,6 @@ public class SSTableReader {
         return flux.filter(isLive)
                 .map(rowMapper);
     }
-
-    public static void main(String[] args) throws Exception {
-//        String ssTableFileName = "/Volumes/stliu/tools/apache-cassandra-2.0.9/data/Usergrid_Applications/Entity_Properties/Usergrid_Applications-Entity_Properties-jb-11-Data.db";
-        String ssTableFileName = "/Users/stliu/tools/apache-cassandra-2.0.9/data/Usergrid_Applications/Entity_Properties/Usergrid_Applications-Entity_Properties-jb-1-Data.db";
-//        Descriptor descriptor = Descriptor.fromFilename(ssTableFileName);
-
-
-
-
-        Path location = Paths.get("test-output.zip");
-
-
-//        flux.filter(isLive)
-//                .map(rowMapper)
-//
-////                .publishOn(Schedulers.elastic())
-//
-//                .reduceWith(() -> {
-//                    try {
-//                        return Files.newOutputStream(location);
-//                    } catch (IOException e) {
-//                        throw Exceptions.propagate(e);
-//                    }
-//                }, (out, bytes) -> {
-//                    try {
-//                        bytes.writeDelimitedTo(out);
-//                        return out;
-//                    } catch (IOException e) {
-//                        throw Exceptions.propagate(e);
-//                    }
-//                })
-//                .doOnSuccessOrError((out, t) -> {
-//                    try {
-//                        out.close();
-//                    } catch (IOException e) {
-//                        throw Exceptions.propagate(e);
-//                    }
-//                })
-//                .map(out -> location)
-//                .subscribe(System.out::println, (e) -> {
-//                    System.out.println("------- error ------");
-//                    e.printStackTrace();
-//                }, () -> {
-//                    System.out.println("--------completed ------");
-//                });
-        ;
-    }
-
 
     private static Predicate<SSTableIdentityIteratorPatched> isLive = (row) -> {
         return row.getColumnFamily().deletionInfo().isLive();

@@ -2,17 +2,22 @@ package com.easemob.cassandra.sstableprotocolbuf;
 
 import com.easemob.cassandra.sstable.SSTableModel;
 import com.easemob.cassandra.sstableprotocolbuf.service.SSTableReader;
+import com.google.protobuf.AbstractMessageLite;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.stereotype.Component;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.awt.image.DataBuffer;
 import java.io.IOException;
+import java.nio.channels.AsynchronousFileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 
 @Component
@@ -55,6 +60,9 @@ public class Runner implements CommandLineRunner {
 
         rows.publishOn(Schedulers.elastic())
 
+//                .map(AbstractMessageLite::toByteString)
+//                .map(DataBufferUtils.)
+
                 .reduceWith(() -> {
                     try {
                         return Files.newOutputStream(targetPath);
@@ -82,8 +90,19 @@ public class Runner implements CommandLineRunner {
                     e.printStackTrace();
                 }, () -> {
                     System.out.println("--------completed ------");
-                });
+                })
 
+
+        ;
+
+    }
+
+    private AsynchronousFileChannel createFile(Path path) {
+        try {
+            return AsynchronousFileChannel.open(path, StandardOpenOption.TRUNCATE_EXISTING,StandardOpenOption.WRITE);
+        } catch (Exception e) {
+            throw Exceptions.propagate(e);
+        }
     }
 
     private Path getTargetFileLocation(Path source) {
